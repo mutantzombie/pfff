@@ -7,6 +7,7 @@
  *    May you share freely, never taking more than you give.
  *)
 open Common
+open Sgrep_args
 
 module PI = Parse_info
 module S = Scope_code
