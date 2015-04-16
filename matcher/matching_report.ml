@@ -36,6 +36,8 @@ type match_format =
   | Emacs
   (* ex: tests/misc/foo4.php:3: foo(1,2) *)
   | OneLine
+  (* ex: Normal as encoded in JSON *)
+  | Json
 
 (*****************************************************************************)
 (* Helpers *)
@@ -77,4 +79,6 @@ let print_match ?(format = Normal) ii =
   | OneLine ->
       pr (prefix ^ ": " ^ (ii +> List.map PI.str_of_info 
                             +> join_with_space_if_needed))
+  | Json ->
+      pr "TODO"
 
