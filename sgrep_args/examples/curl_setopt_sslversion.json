@@ -1,0 +1,26 @@
+[
+{
+  "name": "CURLOPT_SSLVERSION SSLv2",
+  "version": 1,
+  "lang": ["c", "c++"],
+  "pattern": "CURL_SSLVERSION_SSLv2"
+},
+{
+  "name": "CURLOPT_SSLVERSION SSLv3",
+  "version": 1,
+  "lang": ["c", "c++"],
+  "pattern": "CURL_SSLVERSION_SSLv3"
+},
+{
+  "name": "CURLOPT_SSLVERSION SSLv2",
+  "version": 1,
+  "lang": "php",
+  "pattern": "curl_setopt(X, CURLOPT_SSLVERSION, CURL_SSLVERSION_SSLv2)"
+},
+{
+  "name": "CURLOPT_SSLVERSION SSLv3",
+  "version": 1,
+  "lang": "php",
+  "pattern": "curl_setopt(X, CURLOPT_SSLVERSION, CURL_SSLVERSION_SSLv2)"
+}
+]
