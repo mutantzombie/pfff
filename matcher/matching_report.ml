@@ -81,7 +81,7 @@ let print_match ?(format = Normal) ?(info = Sgrep_args.empty_pattern) ii =
   | Json ->
       let json = J.Object [
         "name", J.String info.name;
-        "version", J.Int (int_of_string info.version);
+        "version", J.String info.version;
         "file", J.String file;
         "linenum", J.Int line;
         "start_column", J.Int start_column;
