@@ -7,7 +7,6 @@
  *    May you share freely, never taking more than you give.
  *)
 open Common
-open Sgrep_args
 
 module PI = Parse_info
 module S = Scope_code
@@ -38,6 +37,7 @@ module S = Scope_code
 let use_multiple_patterns = ref false
 let verbose = ref false
 
+let json_file = ref ""
 let pattern_file = ref ""
 let pattern_string = ref ""
 
@@ -332,12 +332,16 @@ let options () =
     " <file> obtain pattern from file";
     "-multi", Arg.Set use_multiple_patterns,
     " combine with -f <file> to obtain multiple patterns from file, one per line";
+    "-args", Arg.Set_string json_file,
+    " <file> obtain JSON-encoded patterns from file";
 
     "-case_sensitive", Arg.Set case_sensitive, 
     " match code in a case sensitive manner";
 
     "-emacs", Arg.Unit (fun () -> match_format := Matching_report.Emacs ),
     " print matches on the same line than the match position";
+    "-json", Arg.Unit (fun () -> match_format := Matching_report.Json),
+    " print matches in JSON format";
     "-oneline", Arg.Unit (fun () -> match_format := Matching_report.OneLine),
     " print matches on one line, in normalized form";
 
