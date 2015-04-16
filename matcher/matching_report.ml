@@ -13,7 +13,9 @@
  * license.txt for more details.
  *)
 open Common
+open Sgrep_args
 
+module J = Json_type
 module PI = Parse_info
 
 (*****************************************************************************)
@@ -34,10 +36,10 @@ type match_format =
   | Normal
   (* ex: tests/misc/foo4.php:3: foo( *)
   | Emacs
-  (* ex: tests/misc/foo4.php:3: foo(1,2) *)
-  | OneLine
   (* ex: Normal as encoded in JSON *)
   | Json
+  (* ex: tests/misc/foo4.php:3: foo(1,2) *)
+  | OneLine
 
 (*****************************************************************************)
 (* Helpers *)
@@ -61,10 +63,10 @@ let rec join_with_space_if_needed xs =
       else x ^ (join_with_space_if_needed (y::xs))
 
 
-let print_match ?(format = Normal) ii = 
+let print_match ?(format = Normal) ?(info = Sgrep_args.empty_pattern) ii =
   let (mini, maxi) = PI.min_max_ii_by_pos ii in
-  let (file, line) = 
-    PI.file_of_info mini, PI.line_of_info mini in
+  let (file, line, start_column, end_column) =
+    PI.file_of_info mini, PI.line_of_info mini, PI.col_of_info mini, PI.col_of_info maxi in
   let prefix = spf "%s:%d" file line in
   let arr = Common2.cat_array file in
   let lines = Common2.enum (PI.line_of_info mini) (PI.line_of_info maxi) in
@@ -76,9 +78,19 @@ let print_match ?(format = Normal) ii =
       lines +> List.map (fun i -> arr.(i)) +> List.iter (fun s -> pr (" " ^ s));
   | Emacs ->
       pr (prefix ^ ": " ^ arr.(List.hd lines))
+  | Json ->
+      let json = J.Object [
+        "name", J.String info.name;
+        "version", J.Int (int_of_string info.version);
+        "file", J.String file;
+        "linenum", J.Int line;
+        "start_column", J.Int start_column;
+        "end_column", J.Int end_column;
+        "linetext", J.Array (lines +> List.map (fun i -> J.String arr.(i)));
+      ] in
+      let s = Json_io.string_of_json json in
+      pr s
   | OneLine ->
       pr (prefix ^ ": " ^ (ii +> List.map PI.str_of_info 
                             +> join_with_space_if_needed))
-  | Json ->
-      pr "TODO"
 

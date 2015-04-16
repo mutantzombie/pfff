@@ -7,6 +7,7 @@
  *    May you share freely, never taking more than you give.
  *)
 open Common
+open Sgrep_args
 
 module PI = Parse_info
 module S = Scope_code
@@ -191,6 +192,23 @@ let parse_pattern str =
     Right (ast_fuzzy_of_string str)
   | _ -> failwith ("unsupported language: " ^ !lang)
 
+let language_filter langs =
+  match langs with
+  (* MPS: langs is optional, omission implies pattern may be used for anything *)
+  | [] ->
+    true
+  | _ ->
+    List.exists (fun l -> l = !lang) langs
+
+let read_json_patterns file =
+  let plugins = Sgrep_args.read_json_plugins ~verbose:!verbose file in
+  let relevant_plugins =
+    List.filter (fun p -> language_filter p.langs) plugins in
+(*
+  List.map (fun p -> parse_pattern p.pattern, p) relevant_plugins
+*)
+  List.map (fun p -> parse_pattern p.pattern) relevant_plugins
+
 let read_patterns name =
   let ic = open_in name in
   let try_read () =
@@ -247,18 +265,20 @@ let sgrep_ast pattern any_ast =
 (*****************************************************************************)
 let main_action xs =
   let patterns, query_string =
-    match !pattern_file, !pattern_string, !use_multiple_patterns with
-    | "", "", _ ->
-        failwith "I need a pattern; use -f or -e"
-    | file, _, true when file <> "" ->
+    match !pattern_file, !pattern_string, !json_file, !use_multiple_patterns with
+    | "", "", "", _ ->
+        failwith "I need a pattern; use -f, -e, or -args"
+    | file, _, _, true when file <> "" ->
         read_patterns file, "multi"
-    | file, _, _ when file <> "" ->
+    | file, _, _, _ when file <> "" ->
         let s = Common.read_file file in
         [parse_pattern s], s
-    | _, s, true when s <> ""->
+    | _, s, _, true when s <> ""->
         failwith "cannot combine -multi with -e"
-    | _, s, _ when s <> ""->
+    | _, s, _, _ when s <> ""->
         [parse_pattern s], s
+    | _, _, file, _ when file <> "" ->
+        read_json_patterns file, "json args"
     | _ -> raise Impossible
   in
   Logger.log Config_pfff.logger "sgrep" (Some query_string);
