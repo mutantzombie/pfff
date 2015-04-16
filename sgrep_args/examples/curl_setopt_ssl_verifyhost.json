@@ -1,0 +1,14 @@
+[
+{
+  "name": "CURLOPT_SSL_VERIFYHOST false",
+  "version": 1,
+  "lang": "php",
+  "pattern": "curl_setopt(X, CURLOPT_SSL_VERIFYHOST, false)"
+},
+{
+  "name": "CURLOPT_SSL_VERIFYHOST true",
+  "version": 1,
+  "lang": "php",
+  "pattern": "curl_setopt(X, CURLOPT_SSL_VERIFYHOST, true)"
+}
+]
