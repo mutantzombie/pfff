@@ -98,7 +98,7 @@ struct
     | J.Object _ ->
       let tbl = make_table (objekt json) in
       {
-        name = string (field tbl "plugin_name");
+        name = string (field tbl "name");
         version = extract_version (field tbl "version");
         langs = langs_list_or_nothing (optfield tbl "lang");
         pattern = extract_pattern (field tbl "pattern");
