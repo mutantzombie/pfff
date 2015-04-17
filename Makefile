@@ -109,6 +109,7 @@ BASICLIBS=commons/lib.cma \
  globals/lib.cma \
  h_files-format/lib.cma \
  h_program-lang/lib.cma \
+ sgrep_args/lib.cma \
  matcher/lib.cma \
  lang_ml/parsing/lib.cma \
  lang_nw/parsing/lib.cma \
@@ -149,6 +150,7 @@ LIBS= commons/lib.cma \
     h_visualization/lib.cma \
     h_program-visual/lib.cma \
     graph_code/lib.cma \
+    sgrep_args/lib.cma \
     matcher/lib.cma \
     lang_ml/parsing/lib.cma \
      lang_ml/analyze/visual/lib.cma \
@@ -211,6 +213,7 @@ MAKESUBDIRS=commons \
   h_program-lang \
   graph_code \
   h_program-visual \
+  sgrep_args \
   matcher \
   lang_ml/parsing \
    lang_ml/analyze \
@@ -509,6 +512,7 @@ uninstall:
 INSTALL_SUBDIRS= \
   commons \
   commons/graph \
+  sgrep_args \
   h_program-lang    matcher \
   h_version-control h_files-format \
   lang_ml/parsing \

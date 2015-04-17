@@ -1,0 +1,6 @@
+{
+  "name": "CURLOPT_SSL_VERIFYPEER",
+  "version": 1,
+  "lang": "php",
+  "pattern": "curl_setopt(X, CURLOPT_SSL_VERIFYPEER, false)"
+}
