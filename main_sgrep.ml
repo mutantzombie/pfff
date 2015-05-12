@@ -34,6 +34,7 @@ module S = Scope_code
 (*****************************************************************************)
 (* Flags *)
 (*****************************************************************************)
+(*
 type metavar_match_t = {
   metavar: string;
   regex: Str.regexp
@@ -42,6 +43,7 @@ type metavar_match_t = {
 type pattern_info_t = {
   metavar_match: metavar_match_t list
 }
+*)
 
 
 let use_multiple_patterns = ref false
@@ -49,7 +51,7 @@ let verbose = ref false
 
 let json_file = ref ""
 let pattern_file = ref ""
-let pattern_info = ref { metavar_match = [] }
+let pattern_info = ref Sgrep_args.empty_pattern
 let pattern_string = ref ""
 
 (* todo: infer from basename argv(0) ? *)
@@ -403,6 +405,11 @@ let options () =
 
     "-mvar_match", Arg.String (fun s -> let x = Common.split "," s in
       pattern_info := {
+        name = "";
+        version = "";
+        langs = [];
+        pattern = "";
+        pattern_reject = "";
         metavar_match = [{ metavar = List.nth x 0; regex = Str.regexp (List.nth x 1) }]
       }),
     " <mvar>,<regex> match mvar against regex (only supports a single mvar)";

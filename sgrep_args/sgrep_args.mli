@@ -5,7 +5,7 @@ type metavar_match_t = {
   regex: Str.regexp;
 }
 
-type pattern_info = {
+type pattern_info_t = {
   name: string;
   version: string;
   langs: string list;
@@ -16,8 +16,8 @@ type pattern_info = {
 
 module Sgrep_args :
 sig
-  val empty_pattern: pattern_info
+  val empty_pattern: pattern_info_t
 
-  val read_json_plugins: ?verbose:bool -> string -> pattern_info list
+  val read_json_plugins: ?verbose:bool -> string -> pattern_info_t list
 end
 

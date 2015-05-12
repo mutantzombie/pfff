@@ -7,7 +7,7 @@ type metavar_match_t = {
   regex: Str.regexp;
 }
 
-type pattern_info = {
+type pattern_info_t = {
   name: string;
   version: string;
   langs: string list;
