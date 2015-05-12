@@ -34,12 +34,22 @@ module S = Scope_code
 (*****************************************************************************)
 (* Flags *)
 (*****************************************************************************)
+type metavar_match_t = {
+  metavar: string;
+  regex: Str.regexp
+}
+
+type pattern_info_t = {
+  metavar_match: metavar_match_t list
+}
+
 
 let use_multiple_patterns = ref false
 let verbose = ref false
 
 let json_file = ref ""
 let pattern_file = ref ""
+let pattern_info = ref { metavar_match = [] }
 let pattern_string = ref ""
 
 (* todo: infer from basename argv(0) ? *)
@@ -151,6 +161,28 @@ type ast_t =
   | Fuzzy of Ast_fuzzy.tree list
   | Php of Ast_php.program
 
+let check_mvars info mvar_binding ii_of_any =
+  match info.metavar_match with
+  | [] -> true
+  | xs ->
+    let strings_metavars =
+      xs +> List.filter (fun x ->
+        match Common2.assoc_opt x.metavar mvar_binding with
+        | Some any ->
+          let m = ii_of_any any
+            +> List.map PI.str_of_info
+            +> Matching_report.join_with_space_if_needed
+          in
+          (try
+            let _ = Str.search_forward x.regex m 0 in
+            true
+          with _ -> false)
+        | None ->
+          failwith (spf "the metavariable '%s' was not binded" x.metavar);
+        )
+    in
+    List.length strings_metavars > 0
+
 let create_ast file =
   match !lang with
   | "php" ->
@@ -248,7 +280,8 @@ let sgrep_ast pattern any_ast =
     Sgrep_php.sgrep_ast
       ~case_sensitive:!case_sensitive
       ~hook:(fun env matched_tokens ->
-        print_match !mvars env Lib_parsing_php.ii_of_any matched_tokens
+        if check_mvars !pattern_info env Lib_parsing_php.ii_of_any then
+          print_match !mvars env Lib_parsing_php.ii_of_any matched_tokens
       )
       pattern ast
   | "phpfuzzy", Right pattern, Fuzzy ast ->
@@ -367,6 +400,12 @@ let options () =
 
     "-pvar", Arg.String (fun s -> mvars := Common.split "," s),
     " <metavars> print the metavariables, not the matched code";
+
+    "-mvar_match", Arg.String (fun s -> let x = Common.split "," s in
+      pattern_info := {
+        metavar_match = [{ metavar = List.nth x 0; regex = Str.regexp (List.nth x 1) }]
+      }),
+    " <mvar>,<regex> match mvar against regex (only supports a single mvar)";
 
     "-gen_layer", Arg.String (fun s -> layer_file := Some s),
     " <file> save result in a pfff layer file\n";
