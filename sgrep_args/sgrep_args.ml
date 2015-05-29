@@ -108,7 +108,7 @@ struct
     | _ ->
       failwith "invalid object"
 
-  let extract_plugins json =
+  let extract_detections json =
     match json with
     | J.Array _ ->
       let a = array json in
@@ -128,13 +128,13 @@ struct
     | _ ->
       failwith "no pattern"
 
-  let read_json_plugins ?(verbose = false) file =
+  let read_json_detections ?(verbose = false) file =
     let json = Json_in.load_json file in
     if verbose then (
       let s = Json_io.string_of_json json in
       pr s;
       print_patterns json;
     );
-    extract_plugins json
+    extract_detections json
 end
 

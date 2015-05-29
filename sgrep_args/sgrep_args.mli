@@ -18,6 +18,6 @@ module Sgrep_args :
 sig
   val empty_pattern: pattern_info_t
 
-  val read_json_plugins: ?verbose:bool -> string -> pattern_info_t list
+  val read_json_detections: ?verbose:bool -> string -> pattern_info_t list
 end
 

@@ -78,10 +78,10 @@ let _matching_tokens = ref []
  * would see where the parameters come from :)
  *)
 
-let print_match mvars mvar_binding ii_of_any tokens_matched_code = 
+let print_match ?(info = Sgrep_args.empty_pattern) mvars mvar_binding ii_of_any tokens_matched_code = 
   (match mvars with
   | [] ->
-      Matching_report.print_match ~format:!match_format tokens_matched_code
+      Matching_report.print_match ~format:!match_format ~info tokens_matched_code
   | xs ->
       (* similar to the code of Lib_matcher.print_match, maybe could
        * factorize code a bit.
@@ -235,13 +235,13 @@ let language_filter langs =
     List.exists (fun l -> l = !lang) langs
 
 let read_json_patterns file =
-  let plugins = Sgrep_args.read_json_plugins ~verbose:!verbose file in
-  let relevant_plugins =
-    List.filter (fun p -> language_filter p.langs) plugins in
+  let patterns = Sgrep_args.read_json_detections ~verbose:!verbose file in
+  let relevant_patterns =
+    List.filter (fun p -> language_filter p.langs) patterns in
 (*
   List.map (fun p -> parse_pattern p.pattern, p) relevant_plugins
 *)
-  List.map (fun p -> parse_pattern p.pattern) relevant_plugins
+  List.map (fun p -> parse_pattern p.pattern) relevant_patterns
 
 let read_patterns name =
   let ic = open_in name in
@@ -252,44 +252,44 @@ let read_patterns name =
     | None -> close_in ic; List.rev acc in
   loop []
 
-let sgrep_ast pattern any_ast =
+let sgrep_ast pattern ?(info = Sgrep_args.empty_pattern) any_ast =
   match !lang, pattern, any_ast with
   | ("c" | "c++"), Right pattern, Fuzzy ast ->
     Sgrep_fuzzy.sgrep
       ~hook:(fun env matched_tokens ->
-        print_match !mvars env Ast_fuzzy.toks_of_trees matched_tokens
+        print_match ~info !mvars env Ast_fuzzy.toks_of_trees matched_tokens
       )
       pattern ast
   | "java", Right pattern, Fuzzy ast ->
     Sgrep_fuzzy.sgrep
       ~hook:(fun env matched_tokens ->
-        print_match !mvars env Ast_fuzzy.toks_of_trees matched_tokens
+        print_match ~info !mvars env Ast_fuzzy.toks_of_trees matched_tokens
       )
       pattern ast
   | "js", Right pattern, Fuzzy ast ->
     Sgrep_fuzzy.sgrep
       ~hook:(fun env matched_tokens ->
-        print_match !mvars env Ast_fuzzy.toks_of_trees matched_tokens
+        print_match ~info !mvars env Ast_fuzzy.toks_of_trees matched_tokens
       )
       pattern ast
   | "ml", Right pattern, Fuzzy ast ->
     Sgrep_fuzzy.sgrep
       ~hook:(fun env matched_tokens ->
-        print_match !mvars env Ast_fuzzy.toks_of_trees matched_tokens
+        print_match ~info !mvars env Ast_fuzzy.toks_of_trees matched_tokens
       )
       pattern ast
   | "php", Left pattern, Php ast ->
     Sgrep_php.sgrep_ast
       ~case_sensitive:!case_sensitive
       ~hook:(fun env matched_tokens ->
-        if check_mvars !pattern_info env Lib_parsing_php.ii_of_any then
-          print_match !mvars env Lib_parsing_php.ii_of_any matched_tokens
+        if check_mvars info env Lib_parsing_php.ii_of_any then
+          print_match ~info !mvars env Lib_parsing_php.ii_of_any matched_tokens
       )
       pattern ast
   | "phpfuzzy", Right pattern, Fuzzy ast ->
     Sgrep_fuzzy.sgrep
       ~hook:(fun env matched_tokens ->
-        print_match !mvars env Ast_fuzzy.toks_of_trees matched_tokens
+        print_match ~info !mvars env Ast_fuzzy.toks_of_trees matched_tokens
       )
       pattern ast
   | _ ->
@@ -320,13 +320,15 @@ let main_action xs =
 
   let files = 
     Find_source.files_of_dir_or_files ~lang:!lang ~verbose:!verbose xs in
-
-  files +> List.iter (fun file ->
-    if !verbose then pr2 (spf "processing: %s" file);
-    let ast = create_ast file in
-    let sgrep pattern = sgrep_ast pattern ast in
-    List.iter sgrep patterns
-  );
+    match patterns with
+    | [] -> failwith "no patterns available"
+    | _ ->
+      files +> List.iter (fun file ->
+        if !verbose then pr2 (spf "processing: %s" file);
+        let ast = create_ast file in
+        let sgrep pattern = sgrep_ast pattern ast in
+        List.iter sgrep patterns
+      );
 
   !layer_file +> Common.do_option (fun file ->
     let root = Common2.common_prefix_of_files_or_dirs xs in
