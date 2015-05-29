@@ -376,9 +376,15 @@ let options () =
     "-pvar", Arg.String (fun s -> mvars := Common.split "," s),
     " <metavars> print the metavariables, not the matched code";
 
-    "-mvar_match", Arg.String (fun s -> let x = Common.split "," s in
+    (* MPS: Extract a metavar and regex in the format of 'X,regex'.
+      The separator between the metavar label and the regex may be any single character.
+      Note that the regex characters need to be quoted per the examples in
+      http://caml.inria.fr/pub/docs/manual-ocaml/libref/Str.html#TYPEregexp.
+      Example command: sgrep -e 'X(...)' -mvar_match 'X,foo\|bar' tests/php/sgrep/
+    *)
+    "-mvar_match", Arg.String (fun s -> let x = Str.string_before s 1 in
       pattern_info := {
-        metavar_match = [{ metavar = List.nth x 0; regex = Str.regexp (List.nth x 1) }]
+        metavar_match = [{ metavar = x; regex = Str.regexp (Str.string_after s 2) }]
       }),
     " <mvar>,<regex> match mvar against regex (only supports a single mvar)";
 
