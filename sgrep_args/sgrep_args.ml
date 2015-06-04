@@ -21,6 +21,8 @@ struct
   open Common
   open Json_type.Browse
 
+  let empty_metavar_match = { metavar = ""; regex = Str.regexp "" }
+
   let empty_pattern =
     { name = ""; version = ""; langs = [];
       pattern = ""; pattern_reject = "";

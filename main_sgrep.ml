@@ -34,22 +34,12 @@ module S = Scope_code
 (*****************************************************************************)
 (* Flags *)
 (*****************************************************************************)
-(*
-type metavar_match_t = {
-  metavar: string;
-  regex: Str.regexp
-}
-
-type pattern_info_t = {
-  metavar_match: metavar_match_t list
-}
-*)
-
 
 let use_multiple_patterns = ref false
 let verbose = ref false
 
 let json_file = ref ""
+let metavar_match = ref Sgrep_args.empty_metavar_match
 let pattern_file = ref ""
 let pattern_info = ref Sgrep_args.empty_pattern
 let pattern_string = ref ""
@@ -412,14 +402,8 @@ let options () =
       Example command: sgrep -e 'X(...)' -mvar_match 'X,foo\|bar' tests/php/sgrep/
     *)
     "-mvar_match", Arg.String (fun s -> let x = Str.string_before s 1 in
-      pattern_info := {
-        name = "";
-        version = "";
-        langs = [];
-        pattern = "";
-        pattern_reject = "";
-        metavar_match = [{ metavar = x; regex = Str.regexp (Str.string_after s 2) }]
-      }),
+        metavar_match := { metavar = x; regex = Str.regexp (Str.string_after s 2) }
+      ),
     " <mvar>,<regex> match mvar against regex (only supports a single mvar)";
 
     "-gen_layer", Arg.String (fun s -> layer_file := Some s),

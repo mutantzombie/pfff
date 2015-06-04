@@ -16,6 +16,7 @@ type pattern_info_t = {
 
 module Sgrep_args :
 sig
+  val empty_metavar_match: metavar_match_t
   val empty_pattern: pattern_info_t
 
   val read_json_detections: ?verbose:bool -> string -> pattern_info_t list
